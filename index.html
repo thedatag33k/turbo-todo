@@ -14,7 +14,10 @@
     }
     body {
         padding-top: 90px;
-        padding-bottom: 70px;
+        padding-bottom: 60px;
+    }
+    .fixed-bottom {
+        height: 40px; /* Set the height of your fixed bottom div */
     }
 </style>
 <body class="m-2">
@@ -42,6 +45,13 @@
             savedItems = JSON.parse(localStorage.getItem('todoItems')) || [];
         };
         let numCompleted = savedItems.filter(item => item.done===true).length;
+
+        const bottomInputField = document.getElementById('addItem');
+        bottomInputField.addEventListener('focus', () => {
+            setTimeout(() => {
+                window.scrollTo(0, bottomInputField.getBoundingClientRect().top + window.scrollY - 56); // Adjust 56 to your fixed bottom div height
+            }, 300); // Delay to allow the keyboard to open
+        });
 
         function deleteItem(item){
             savedItems = savedItems.filter(savedItem => savedItem.id !== item.id );
