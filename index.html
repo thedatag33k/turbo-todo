@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You Got Something To Do!</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</head>
+<style>
+    .list-group-hover .list-group-item:hover {
+        background-color: #f5f5f5;
+    }
+    body {
+        padding-bottom: 70px;
+    }
+</style>
+<body class="m-2">
+
+    <h2>Todo List</h2>
+    <p id="numItemsCompleted">0 completed items</p>
+    <ul id="itemList" class="list-group list-group-hover"></ul>
+    <div class="fixed-bottom m-2">
+        <div class="input-group mx-auto" style="max-width: 600px;">
+            <input id="addItem" list="itemOptions" type="text" class="form-control" placeholder="Add an item ..." onkeypress="mimicClick(event)">
+            <datalist id="itemOptions">  
+            </datalist>
+            <button class="btn btn-primary" type="button" id="saveButton"><i class="bi bi-plus-lg"></i> Add Item</button>
+            <button class="btn btn-danger" type="button" id="clearStorageButton" onclick="clearStorage()"><i class="bi bi-trash3"></i> Delete All</button>
+        </div>
+    </div>
+
+    <script>
+        // Load previous searches from local storage
+        const itemList = document.getElementById('itemList');
+        let savedItems = JSON.parse(localStorage.getItem('todoItems')) || [];
+        let numCompleted = savedItems.filter(item => item.done===true).length;
+
+        function deleteItem(item){
+            itemsToKeep = savedItems.filter(savedItem => savedItem.id !== item.id );
+            localStorage.setItem('todoItems', JSON.stringify(itemsToKeep));
+        };
+
+        function updateNumCompleted(item=null){
+            if (item !== null){
+                console.log("updating completed item");
+                numCompleted++;
+                // Update the item
+                savedItems = savedItems.map(savedItem => 
+                    savedItem.id === item.id ? { ...savedItem, done: true } : savedItem
+                );
+                localStorage.setItem('todoItems', JSON.stringify(savedItems));
+
+            };
+            document.getElementById("numItemsCompleted").textContent = numCompleted + " completed items";
+        };
+        updateNumCompleted();
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        };
+
+        function mimicClick(event){
+            if (event.keyCode == 13) {
+                document.getElementById("saveButton").click();
+            };
+        };
+
+        function clearStorage(){
+            numCompleted =  0;
+            updateNumCompleted();
+            itemList.innerHTML = '';
+            localStorage.clear();
+        };
+        
+        function createGuid() {
+            var S4 = function() {
+               return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+            };
+            return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+        };
+        
+        function createItem(item){
+        	const inp_id = createGuid();
+            const li_id = createGuid();
+        	const li = document.createElement('li');
+            const inp = document.createElement('input');
+            const lbl = document.createElement('label');
+            const btn = document.createElement("button");
+            const div = document.createElement('div');
+
+            // Prepare div for input and label
+            div.classList.add('d-flex','align-items-center');
+
+            // Prepare overall list item
+            li.classList.add('list-group-item','d-flex','justify-content-between');
+            li.setAttribute('id',li_id);
+
+            // Prepare input element
+            inp.classList.add('form-check-input');
+            inp.classList.add('me-2');
+            inp.setAttribute('type','checkbox');
+            inp.setAttribute('id', inp_id);
+            inp.setAttribute('parent-id',li_id);
+
+            // Prepare label element
+            lbl.classList.add('form-check-label','stretched-link');
+            lbl.setAttribute('for', inp_id);
+            lbl.textContent = item.name;
+
+            // Prepare delete button
+            btn.classList.add('btn','btn-danger','btn-sm');
+            btn.innerHTML = '<i class="bi bi-trash3">';
+            btn.style = 'z-index:1';
+            btn.onclick = function() {document.getElementById(li_id).remove();deleteItem(item)};
+            
+            // Add elements to div
+            div.appendChild(inp);
+            div.appendChild(lbl);
+
+            // Add elements to list item
+            li.appendChild(div);
+            li.appendChild(btn);
+
+            // Setup event listener to mark item as completed
+            inp.addEventListener('change', (event) => {
+                if (event.target.checked) {
+                    // Find the closest <li> element and remove it
+                    const liElement = event.target.closest('li');
+                    if (liElement) {
+                        setTimeout(() => {
+                            liElement.remove();
+                            updateNumCompleted(item);
+                        }, 150);
+                    }
+                }
+            });
+            // Append item to the list
+            itemList.appendChild(li);
+        };
+
+        // Create all non completed items
+        savedItems.forEach(item => {
+            if (!(item.done)){
+                createItem(item);
+            };
+        });
+
+        // Add all unique item names as a datalist option
+        [...new Set(savedItems.map(item => item.name))].forEach(itemName => {
+            const opt = document.createElement('option');
+            opt.value = itemName;
+            document.getElementById("itemOptions").appendChild(opt);
+        });
+
+        // Save item to local storage and send to server
+        document.getElementById('saveButton').addEventListener('click', () => {
+            const item = document.getElementById('addItem').value;
+            const data = {
+                "id": createGuid(),
+                "name": capitalizeFirstLetter(String(item).trim()),
+                "done": false
+            }
+            if (item) {
+                // Save to local storage
+                savedItems.push(data);
+                localStorage.setItem('todoItems', JSON.stringify(savedItems));
+
+                // Update the displayed list
+                createItem(data);
+            };
+            // Clear input field
+            document.getElementById('addItem').value = "";
+        });
+    </script>
+</body>
+</html>
