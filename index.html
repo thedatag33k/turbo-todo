@@ -13,33 +13,39 @@
         background-color: #f5f5f5;
     }
     body {
+        padding-top: 90px;
         padding-bottom: 70px;
     }
 </style>
 <body class="m-2">
 
-    <h2>Todo List</h2>
-    <p id="numItemsCompleted">0 completed items</p>
+    <div class="fixed-top m-2 bg-white">
+        <h2>Todo List</h2>
+        <p id="numItemsCompleted">0 completed items</p>
+    </div>
     <ul id="itemList" class="list-group list-group-hover"></ul>
     <div class="fixed-bottom m-2">
         <div class="input-group mx-auto" style="max-width: 600px;">
             <input id="addItem" list="itemOptions" type="text" class="form-control" placeholder="Add an item ..." onkeypress="mimicClick(event)">
             <datalist id="itemOptions">  
             </datalist>
-            <button class="btn btn-primary" type="button" id="saveButton"><i class="bi bi-plus-lg"></i> Add Item</button>
-            <button class="btn btn-danger" type="button" id="clearStorageButton" onclick="clearStorage()"><i class="bi bi-trash3"></i> Delete All</button>
+            <button class="btn btn-primary" type="button" id="saveButton"><i class="bi bi-plus-lg"></i> Add</button>
+            <button class="btn btn-danger" type="button" id="clearStorageButton" onclick="clearStorage()"><i class="bi bi-trash3"></i></button>
         </div>
     </div>
 
     <script>
         // Load previous searches from local storage
         const itemList = document.getElementById('itemList');
-        let savedItems = JSON.parse(localStorage.getItem('todoItems')) || [];
+        let savedItems = null;
+        if (savedItems === null){
+            savedItems = JSON.parse(localStorage.getItem('todoItems')) || [];
+        };
         let numCompleted = savedItems.filter(item => item.done===true).length;
 
         function deleteItem(item){
-            itemsToKeep = savedItems.filter(savedItem => savedItem.id !== item.id );
-            localStorage.setItem('todoItems', JSON.stringify(itemsToKeep));
+            savedItems = savedItems.filter(savedItem => savedItem.id !== item.id );
+            localStorage.setItem('todoItems', JSON.stringify(savedItems));
         };
 
         function updateNumCompleted(item=null){
