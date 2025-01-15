@@ -21,6 +21,7 @@
             background-color: black;
         }
         body {
+            padding-top: 90px;
             padding-bottom: 70px;
         }
         .fixed-bottom {
@@ -29,9 +30,19 @@
         }
     </style>
     <body>
-        <div class="sticky-top mb-4 shadow bg-dark" style="--bs-bg-opacity: .95;">
+        <div class="navbar fixed-top shadow bg-dark" style="--bs-bg-opacity: .95;">
             <div class="container">
-                <h3 class="p-3"><i class="bi bi-check2-square"></i> Todo List</h3>
+                <h3 class="navbar-brand"><i class="bi bi-check2-square"></i> Todo List</h3>
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="bi bi-three-dots-vertical"></i></button>
+            </div>
+        </div>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel">Options</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                ...
             </div>
         </div>
         <div id="mydiv" class="container"></div>
