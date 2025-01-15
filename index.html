@@ -21,20 +21,20 @@
             background-color: black;
         }
         body {
-            padding-bottom: 60px;
+            padding-bottom: 70px;
         }
         .fixed-bottom {
             height: 40px;
+            opacity: .95;
         }
     </style>
     <body>
-        <div class="sticky-top mb-4 shadow-sm bg-black" style="--bs-bg-opacity: .95;">
+        <div class="sticky-top mb-4 shadow bg-dark" style="--bs-bg-opacity: .95;">
             <div class="container">
-                <h2 class="p-2">Todo List</h2>
+                <h3 class="p-3"><i class="bi bi-check2-square"></i> Todo List</h3>
             </div>
         </div>
-        <div id="mydiv" class="container">
-        </div>
+        <div id="mydiv" class="container"></div>
 
         <script type="text/babel">
 
@@ -156,8 +156,8 @@
                                 ))}
                             </ul>
                         )}
-                        <div class="fixed-bottom bg-dark mb-2">
-                            <div class="container input-group">
+                        <div class="fixed-bottom bg-dark" style={{height:55}}>
+                            <div class="container input-group" style={{height:45}}>
                                 <input 
                                     list="itemOptions" 
                                     type="text" 
