@@ -1,9 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Got Something To Do?</title>
+        <link rel="icon" type="image/x-icon"
+            href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" class="bi bi-check2-square" viewBox="0 0 16 16">
+                <path d="M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8a.5.5 0 0 1 0 1H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V8a.5.5 0 0 1 1 0v5a1.5 1.5 0 0 1-1.5 1.5z"/>
+                <path d="m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0"/>
+              </svg>'>
         <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
         <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -13,31 +18,28 @@
     </head>
     <style>
         .list-group-hover .list-group-item:hover {
-            background-color: #f5f5f5;
+            background-color: black;
         }
         body {
-            padding-top: 0px;
             padding-bottom: 60px;
         }
         .fixed-bottom {
-            height: 40px; /* Set the height of your fixed bottom div */
+            height: 40px;
         }
     </style>
     <body>
-        <div class="sticky-top mb-4 shadow-sm bg-light" style="--bs-bg-opacity: .95;">
-            <div class="container p-2">
-                <h2>Todo List</h2>
+        <div class="sticky-top mb-4 shadow-sm bg-black" style="--bs-bg-opacity: .95;">
+            <div class="container">
+                <h2 class="p-2">Todo List</h2>
             </div>
         </div>
         <div id="mydiv" class="container">
         </div>
 
         <script type="text/babel">
-            function createGuid() {
-                var S4 = function() {
-                return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-                };
-                return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
             };
 
             class TodoItem extends React.Component {
@@ -95,8 +97,8 @@
                     if (newTodoName.trim() === '') return; // Prevent adding empty todos
 
                     const newTodo = {
-                        id: createGuid(),
-                        name: newTodoName,
+                        id: Date.now(),
+                        name: capitalizeFirstLetter(String(newTodoName).trim()),
                         done: false,
                     };
 
@@ -122,14 +124,6 @@
                     }));
                 };
 
-                getChevron = () => {
-                    if (this.state.hidden) {
-                        return <i class="bi bi-chevron-right"></i>
-                    } else {
-                        return <i class="bi bi-chevron-down"></i>
-                    }
-                };
-
                 getDataListOptions = () => {
                     return [...new Set(this.state.todos.map(todo => todo.name))].sort()
                 };
@@ -143,12 +137,12 @@
                                     key={todo.id} 
                                     item={todo} 
                                     onToggle={this.handleToggle}
-                                    onDelete={this.handleDelete} 
+                                    onDelete={this.handleDelete}
                                 />
                             ))}
                         </ul>
                         <button class="btn btn-outline-secondary my-2" id="numItemsCompleted" onClick={this.handleToggleHidden}>
-                            {this.getChevron()} Completed {this.state.todos.filter(todo => (todo.done === true)).length}
+                            <i class={this.state.hidden ? 'bi bi-chevron-right':'bi bi-chevron-down'}></i> Completed {this.state.todos.filter(todo => (todo.done === true)).length}
                         </button>
                         {!this.state.hidden && (
                             <ul class="list-group list-group-hover">
@@ -162,13 +156,13 @@
                                 ))}
                             </ul>
                         )}
-                        <div class="fixed-bottom bg-white mb-2">
+                        <div class="fixed-bottom bg-dark mb-2">
                             <div class="container input-group">
                                 <input 
                                     list="itemOptions" 
                                     type="text" 
-                                    class="form-control" 
-                                    placeholder="Add an item ..." 
+                                    class="form-control bg-black" 
+                                    placeholder="Add a new item..." 
                                     value={this.state.newTodoName} 
                                     onChange={this.handleInputChange}
                                     onKeyPress={this.handleEnterKey}
@@ -178,7 +172,7 @@
                                         <option value={opt}/>
                                     ))}
                                 </datalist>
-                                <button class="btn btn-secondary" type="button" id="saveButton" onClick={this.handleAddTodo}><i class="bi bi-file-arrow-up-fill"></i> Add</button>
+                                <button class="btn btn-secondary" type="button" id="saveButton" onClick={this.handleAddTodo}><i class="bi bi-file-arrow-up-fill"></i></button>
                             </div>
                         </div>
                         </div>
