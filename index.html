@@ -33,7 +33,7 @@
         <div class="navbar fixed-top shadow bg-dark" style="--bs-bg-opacity: .95;">
             <div class="container py-1">
                 <h4 class="m-0"><i class="bi bi-check2-square"></i> Todo List</h4>
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="bi bi-three-dots-vertical"></i></button>
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="bi bi-list"></i></button>
             </div>
         </div>
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
@@ -42,7 +42,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
-                ...
+                <div class="dropdown mb-3">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Select a list...
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Todo List</a></li>
+                        <li><a class="dropdown-item" href="#">Another list</a></li>
+                        <li><a class="dropdown-item" href="#">A third list</a></li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary">Create New List</button>
             </div>
         </div>
         <div id="mydiv" class="container"></div>
@@ -82,6 +92,17 @@
                     };
                 }
 
+                get sortedTodos() {
+                    // Sort todo item descending to show the latest on top
+                    return this.state.todos.sort((a,b) => {
+                        return new Date(b.id) - new Date(a.id);
+                    });
+                };
+
+                get uniqueItems() {
+                    return [...new Set(this.state.todos.map(todo => todo.name))].sort()
+                };
+
                 componentDidUpdate(prevProps, prevState) {
                     // Update localStorage whenever the todos state changes
                     if (prevState.todos !== this.state.todos) {
@@ -103,7 +124,7 @@
                     }));
                 };
 
-                handleAddTodo = () => {
+                handleCreate = () => {
                     const { newTodoName, todos } = this.state;
                     if (newTodoName.trim() === '') return; // Prevent adding empty todos
 
@@ -125,7 +146,7 @@
 
                 handleEnterKey = (event) => {
                     if (event.key === 'Enter') {
-                        this.handleAddTodo();
+                        this.handleCreate();
                     }
                 };
 
@@ -135,15 +156,11 @@
                     }));
                 };
 
-                getDataListOptions = () => {
-                    return [...new Set(this.state.todos.map(todo => todo.name))].sort()
-                };
-
                 render() {
                     return (
                         <div>
                         <ul class="list-group list-group-hover">
-                            {this.state.todos.filter(todo => (todo.done === false)).map(todo => (
+                            {this.sortedTodos.filter(todo => (todo.done === false)).map(todo => (
                                 <TodoItem 
                                     key={todo.id} 
                                     item={todo} 
@@ -152,12 +169,12 @@
                                 />
                             ))}
                         </ul>
-                        <button class="btn btn-outline-secondary my-2" id="numItemsCompleted" onClick={this.handleToggleHidden}>
+                        <button class="btn btn-outline-secondary my-3" id="numItemsCompleted" onClick={this.handleToggleHidden}>
                             <i class={this.state.hidden ? 'bi bi-chevron-right':'bi bi-chevron-down'}></i> Completed {this.state.todos.filter(todo => (todo.done === true)).length}
                         </button>
                         {!this.state.hidden && (
                             <ul class="list-group list-group-hover">
-                                {this.state.todos.filter(todo => (todo.done === true)).map(todo => (
+                                {this.sortedTodos.filter(todo => (todo.done === true)).map(todo => (
                                     <TodoItem 
                                         key={todo.id} 
                                         item={todo} 
@@ -179,11 +196,11 @@
                                     onKeyPress={this.handleEnterKey}
                                 />
                                 <datalist id="itemOptions">
-                                    {this.getDataListOptions().map(opt => (
+                                    {this.uniqueItems.map(opt => (
                                         <option value={opt}/>
                                     ))}
                                 </datalist>
-                                <button class="btn btn-secondary" type="button" id="saveButton" onClick={this.handleAddTodo}><i class="bi bi-file-arrow-up-fill"></i></button>
+                                <button class="btn btn-secondary" type="button" id="saveButton" onClick={this.handleCreate}><i class="bi bi-file-arrow-up-fill"></i></button>
                             </div>
                         </div>
                         </div>
