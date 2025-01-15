@@ -13,7 +13,7 @@
         background-color: #f5f5f5;
     }
     body {
-        padding-top: 90px;
+        padding-top: 60px;
         padding-bottom: 60px;
     }
     .fixed-bottom {
@@ -24,22 +24,23 @@
 
     <div class="fixed-top m-2 bg-white">
         <h2>Todo List</h2>
-        <p id="numItemsCompleted">0 completed items</p>
     </div>
     <ul id="itemList" class="list-group list-group-hover"></ul>
-    <div class="fixed-bottom m-2">
+    <button class="btn btn-outline-secondary my-2" id="numItemsCompleted" onclick="toggleShowCompleted()"><i class="bi bi-chevron-right"></i> Completed 0</button>
+    <ul id="completedItemList" class="list-group list-group-hover" style="display: none;"></ul>
+    <div class="fixed-bottom m-2 bg-white">
         <div class="input-group mx-auto" style="max-width: 600px;">
             <input id="addItem" list="itemOptions" type="text" class="form-control" placeholder="Add an item ..." onkeypress="mimicClick(event)">
             <datalist id="itemOptions">  
             </datalist>
-            <button class="btn btn-primary" type="button" id="saveButton"><i class="bi bi-plus-lg"></i> Add</button>
-            <button class="btn btn-danger" type="button" id="clearStorageButton" onclick="clearStorage()"><i class="bi bi-trash3"></i></button>
+            <button class="btn btn-secondary" type="button" id="saveButton"><i class="bi bi-file-arrow-up-fill"></i> Add</button>
         </div>
     </div>
 
     <script>
         // Load previous searches from local storage
         const itemList = document.getElementById('itemList');
+        const completedItemList = document.getElementById('completedItemList');
         let savedItems = null;
         if (savedItems === null){
             savedItems = JSON.parse(localStorage.getItem('todoItems')) || [];
@@ -58,18 +59,28 @@
             localStorage.setItem('todoItems', JSON.stringify(savedItems));
         };
 
-        function updateNumCompleted(item=null){
+        function toggleShowCompleted(){
+            if (window.getComputedStyle(completedItemList).display === "none") {
+                document.getElementById("numItemsCompleted").innerHTML = document.getElementById("numItemsCompleted").innerHTML.replace('chevron-right','chevron-down');
+                completedItemList.style.display = "block";
+            } else {
+                document.getElementById("numItemsCompleted").innerHTML = document.getElementById("numItemsCompleted").innerHTML.replace('chevron-down','chevron-right');
+                completedItemList.style.display = "none";
+            }
+        }
+
+        function updateNumCompleted(item=null, subtract=false){
             if (item !== null){
-                console.log("updating completed item");
-                numCompleted++;
+                item.done = !item.done;
+                subtract ? numCompleted-- : numCompleted++;
                 // Update the item
                 savedItems = savedItems.map(savedItem => 
-                    savedItem.id === item.id ? { ...savedItem, done: true } : savedItem
+                    savedItem.id === item.id ? { ...savedItem, done: item.done } : savedItem
                 );
                 localStorage.setItem('todoItems', JSON.stringify(savedItems));
 
             };
-            document.getElementById("numItemsCompleted").textContent = numCompleted + " completed items";
+            document.getElementById("numItemsCompleted").innerHTML = '<i class="bi bi-chevron-right"></i> Completed ' + numCompleted;
         };
         updateNumCompleted();
 
@@ -115,15 +126,21 @@
 
             // Prepare input element
             inp.classList.add('form-check-input');
-            inp.classList.add('me-2');
+            inp.classList.add('me-2','rounded-circle');
             inp.setAttribute('type','checkbox');
             inp.setAttribute('id', inp_id);
             inp.setAttribute('parent-id',li_id);
+            if (item.done){
+                inp.checked = true;
+            };
 
             // Prepare label element
             lbl.classList.add('form-check-label','stretched-link');
             lbl.setAttribute('for', inp_id);
             lbl.textContent = item.name;
+            if (item.done){
+                lbl.style.textDecoration = "line-through";
+            };
 
             // Prepare delete button
             btn.classList.add('btn','btn-danger','btn-sm');
@@ -141,26 +158,40 @@
 
             // Setup event listener to mark item as completed
             inp.addEventListener('change', (event) => {
+                // Find the closest <li> element and remove it
+                const liElement = event.target.closest('li');
+                const lblElement = event.target.closest('label');
                 if (event.target.checked) {
-                    // Find the closest <li> element and remove it
-                    const liElement = event.target.closest('li');
                     if (liElement) {
                         setTimeout(() => {
-                            liElement.remove();
+                            itemList.removeChild(liElement);
+                            completedItemList.appendChild(liElement);
                             updateNumCompleted(item);
+                            lbl.style.textDecoration = "line-through";
+                        }, 150);
+                    }
+                } else {
+                    if (liElement) {
+                        setTimeout(() => {
+                            completedItemList.removeChild(liElement);
+                            itemList.appendChild(liElement);
+                            updateNumCompleted(item, true);
+                            lbl.style.textDecoration = "none";
                         }, 150);
                     }
                 }
             });
             // Append item to the list
-            itemList.appendChild(li);
+            if (item.done){
+                completedItemList.appendChild(li);
+            } else {
+                itemList.appendChild(li);
+            }
         };
 
         // Create all non completed items
         savedItems.forEach(item => {
-            if (!(item.done)){
-                createItem(item);
-            };
+            createItem(item);
         });
 
         // Add all unique item names as a datalist option
