@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/turbo-todo/static/css/main.24b98bca.css",
-    "main.js": "/turbo-todo/static/js/main.18d0d97b.js",
+    "main.js": "/turbo-todo/static/js/main.d89f758c.js",
     "index.html": "/turbo-todo/index.html",
     "main.24b98bca.css.map": "/turbo-todo/static/css/main.24b98bca.css.map",
-    "main.18d0d97b.js.map": "/turbo-todo/static/js/main.18d0d97b.js.map"
+    "main.d89f758c.js.map": "/turbo-todo/static/js/main.d89f758c.js.map"
   },
   "entrypoints": [
     "static/css/main.24b98bca.css",
-    "static/js/main.18d0d97b.js"
+    "static/js/main.d89f758c.js"
   ]
 }
