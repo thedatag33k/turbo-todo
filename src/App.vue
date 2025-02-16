@@ -36,8 +36,6 @@ onMounted(()=>{
 </script>
 
 <style>
-@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
-@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap");
 :root {
     --primary: var(--bs-primary);
     --dark : var(--bs-dark);
@@ -65,7 +63,7 @@ onMounted(()=>{
     transition: all 500ms linear;
 }
 .badge {
-    font-family: "Fira Code", serif;
+    font-family: "Fira Code", monospace;
 }
 .no-select {
     user-select: none;
