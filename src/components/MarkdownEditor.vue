@@ -197,7 +197,7 @@ watch(
 onUpdated(autoGrow);
 </script>
 
-<style>
+<style scoped>
   #editing, #highlighting, #editor-bg , #highlighting * {
     font-family: "Fira Code", monospace;
     font-size: 1em;
