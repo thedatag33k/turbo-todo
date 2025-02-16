@@ -14,10 +14,9 @@
     </TopNav>
     <div class="container">
         <Transition name="input">
-            <div class="mb-3 mt-0 d-flex align-items-center input-container" v-if="showInput">
+            <div class="d-flex align-items-center input-container" v-if="showInput">
                 <input v-focus
                     id="newTodoInput"
-                    style="height: 3rem;"
                     type="text"
                     class="form-control me-auto"
                     placeholder="Add a new item..."
@@ -190,7 +189,7 @@ onMounted(updateRepeatedItems);
 }
 .input-enter-active,
 .input-leave-active {
-    transition: all 250ms ease;
+    transition: all 300ms ease;
 }
 .input-enter-from,
 .input-leave-to {
@@ -202,7 +201,7 @@ onMounted(updateRepeatedItems);
 .input-leave-from {
     height: 3rem;
     opacity: 1;
-    margin-bottom: .75rem !important;
+    margin-bottom: 1rem !important;
 }
 .container {
     overflow-x: hidden;
@@ -222,6 +221,7 @@ onMounted(updateRepeatedItems);
     transition: background-color 500ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 #newTodoInput {
+    height: 3em;
     border: 0;
     border-radius: 0;
     background-color: transparent !important;
@@ -231,6 +231,7 @@ onMounted(updateRepeatedItems);
     box-shadow: none;
 }
 .input-container {
+    margin-bottom: 1rem;
     border-bottom: 1px solid var(--dark-accent);
 }
 </style>
