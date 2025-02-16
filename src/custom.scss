@@ -1,0 +1,15 @@
+// Override default variables before the import
+
+// Import Bootstrap and its default variables
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+.list-group-hover .list-group-item:hover {
+    background-color: $light;
+}
+
+@include color-mode(dark) {
+    .list-group-hover .list-group-item:hover {
+        background-color: $black;
+    }
+}
+  
