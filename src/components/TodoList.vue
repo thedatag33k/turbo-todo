@@ -1,7 +1,7 @@
 <template>
     <TopNav title="Todo List" iconClass="bi bi-check2-square">
         <template #modal>
-            <BaseModal id="newListModal" title="Create a new list">
+            <BaseModal modal-id="newListModal" title="Create a new list">
                 <template #body>
                     <input type="text" placeholder="New list name..." class="form-control"/>
                 </template>

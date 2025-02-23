@@ -24,13 +24,13 @@
                 <!-- Routes -->
                 <div :class="colClass">
                     <div :class="rowClass" class="flex-wrap">
-                        <span data-bs-dismiss="offcanvas" v-if="!['/', '/todolist'].includes(route.path)">
+                        <span data-bs-dismiss="offcanvas">
                             <RouterLink class="btn btn-primary m-1" to="/todolist"><i class="bi bi-check2-square me-2"></i>Tasks</RouterLink>
                         </span>
-                        <span data-bs-dismiss="offcanvas" v-if="route.path !== '/notes'">
+                        <span data-bs-dismiss="offcanvas">
                             <RouterLink class="btn btn-primary m-1" to="/notes"><i class="bi bi-journals me-2"></i>Notes</RouterLink>
                         </span>
-                        <span data-bs-dismiss="offcanvas" v-if="route.path !== '/rss'">
+                        <span data-bs-dismiss="offcanvas">
                             <RouterLink class="btn btn-primary m-1" to="/rss"><i class="bi bi-activity me-2"></i>Pulse</RouterLink>
                         </span>
                     </div>
@@ -97,22 +97,29 @@
     </div>
 </template>
 
+<script>
+const colClass = "col p-2 rounded";
+const rowClass = "d-flex align-items-center fs-6";
+</script>
+
 <script setup>
+// IMPORTS
+// -------
 import { defineProps } from 'vue';
 import { state } from '@/UserSettings';
 import { useRoute } from 'vue-router';
 import ToggleSwitch from './ToggleSwitch.vue';
 
-const colClass = "col p-2 rounded";
-const rowClass = "d-flex align-items-center fs-6";
-
+// CONFIGS
+// -------
 const route = useRoute();
-
 const props = defineProps({
     title:{type:String, required:true},
     iconClass:{type:String, required:true}
 })
 
+// METHODS
+// -------
 const toggleAutoFocusOnEdit = () => {
     state.settings.notes.autoFocusOnEdit = !state.settings.notes.autoFocusOnEdit
 }

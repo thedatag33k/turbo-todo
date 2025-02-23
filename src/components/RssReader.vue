@@ -2,17 +2,18 @@
     <TopNav title="Pulse" iconClass="bi bi-activity">
     </TopNav>
     <div class="container">
+        <div ref="parseHtmlContainer" v-show="false"></div>
         <div v-if="items.length>0">
-            <div v-for="item in sortedItems" :key="item.uniqueId" class="card shadow mb-2">
-                <img :src="item.imageUrl" class="card-img-top" style="max-height: 200px;object-fit: cover;object-position: 50% 20%;">
+            <div v-for="item in sortedItems" :key="item.entry.id" class="card shadow mb-2">
+                <img :src="getThumbnail(item)" class="card-img-top" style="max-height: 200px;object-fit: cover;object-position: 50% 20%;">
                 <div class="card-body">
                     <div class="d-flex align-items-center flex-wrap mb-1">
-                        <span class="badge text-truncate text-bg-primary m-1">{{ item.feedName }}</span>
-                        <span class="badge text-bg-warning m-1">{{ item.category }}</span>
-                        <span class="text-muted m-1">{{ Calendar.formatRelativeTime(item.date) }}</span>
+                        <span class="badge text-truncate text-bg-primary m-1">{{ getFeedTitle(item) }}</span>
+                        <span class="badge text-bg-warning m-1">{{ getCategory(item) }}</span>
+                        <span class="text-muted m-1">{{ Calendar.formatRelativeTime(getDate(item)) }}</span>
                     </div>
-                    <a :href="item.link || '#'" target="_blank" class="card-title fs-5">{{ item.title }}</a>
-                    <p class="card-text">{{ item.description }}</p>
+                    <a :href="item.entry.link || '#'" target="_blank" class="card-title fs-5 link-underline-secondary">{{ item.entry.title }}</a>
+                    <div v-html="getSummary(item)" class="card-text"></div>
                 </div>
             </div>
         </div>
@@ -56,66 +57,79 @@ const buttonStyle = {
 <script setup>
 // IMPORTS
 // -------
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, useTemplateRef } from 'vue';
 import TopNav from './TopNav.vue';
 import FixedBottom from './FixedBottom.vue';
 import { Calendar } from '@/Tools';
-import { fetchAllItems } from '@/Rss'
-
-// STATIC PROPERTIES
-// -----------------
-const defaultFeeds = [
-    {url: "https://www.wired.com/feed/rss", category:"Tech"},
-    {url: "https://www.theverge.com/rss/index.xml", category:"Tech"},
-    {url: "https://feeds.bbci.co.uk/news/world/rss.xml", category:"News"},
-    {url: "https://www.dr.dk/nyheder/service/feeds/senestenyt", category:"News"},
-    {url: "https://www.dr.dk/nyheder/service/feeds/indland", category:"News"},
-    {url: "https://www.aljazeera.com/xml/rss/all.xml", category:"News"},
-    {url: "https://techcrunch.com/feed/", category:"Tech"},
-    {url: "https://www.nature.com/nature.rss", category:"Science"}
-];
 
 // REACTIVE PROPERTIES
 // -------------------
 const feeds = ref([]);
 const items = ref([]);
 const scrollTop = ref(0);
+const parseHtmlContainer = useTemplateRef("parseHtmlContainer");
 
 // COMPUTED PROPERTIES
 // -------------------
 const sortedItems = computed(()=>{
-    return [...items.value].sort((a,b) => Calendar.new(b.date)-Calendar.new(a.date));
+    return [...items.value].sort((a,b) => Calendar.new(getDate(b))-Calendar.new(getDate(a)));
 })
-
-// METHODS
-// -------
-const loadFeeds = () => {
-    feeds.value = JSON.parse(localStorage.getItem("rssFeeds")) || defaultFeeds;
-}
-
-const fetchAll = async () => {
-    items.value = [];
-    const result = await fetchAllItems(feeds.value.map(feed => feed.url));
-    if (result) {
-        result.forEach(feedResult => {
-            items.value.push(...feedResult.items);
-        })
-    }
-}
 
 const scrollActive = computed(()=>{
     return scrollTop.value > 200;
 })
 
+// METHODS
+// -------
+const loadFeeds = async () => {
+    try {
+        const response = await fetch("https://gist.githubusercontent.com/thedatag33k/b8651d3082627e7d485e09cbea714952/raw/feed_data.json");
+        const data = await response.json();
+        feeds.value = JSON.parse(data);
+        items.value = feeds.value.flatMap((feed, index) => feed.entries.map(entry => ({entry, feedIndex:index})));
+    } catch (err) {
+        console.log("Error fetching gist data:",err);
+    }
+    //feeds.value = JSON.parse(localStorage.getItem("rssFeeds")) || defaultFeeds;
+}
+
 const scrollToTop = () => {
     window.scrollTo(0,0);
+}
+
+const getThumbnail = (item) => {
+    const t = item.entry.media_thumbnail;
+    if (t) {
+        return t[0].url;
+    }
+    return "";
+}
+
+const getDate = (item) => {
+    return item.entry.published || item.entry.updated;
+}
+
+const getCategory = (item) => {
+    const t = item.entry.tags;
+    if (t) {
+        return t[0].term;
+    }
+    return null;
+}
+
+const getSummary = (item) => {
+    parseHtmlContainer.value.innerHTML = item.entry.summary || null;
+    return parseHtmlContainer.value.innerHTML;
+}
+
+const getFeedTitle = (item) => {
+    return feeds.value.at(item.feedIndex).feed.title;
 }
 
 // LIFECYCLE HOOKS
 // ---------------
 onMounted(()=>{
     loadFeeds();
-    fetchAll();
     window.addEventListener("scroll", () => {
         scrollTop.value = window.scrollY;
     })
