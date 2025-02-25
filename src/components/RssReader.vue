@@ -12,8 +12,9 @@
                         <span class="badge text-bg-warning m-1">{{ getCategory(item) }}</span>
                         <span class="text-muted m-1">{{ Calendar.formatRelativeTime(getDate(item)) }}</span>
                     </div>
-                    <a :href="item.entry.link || '#'" target="_blank" class="card-title fs-5 link-underline-secondary">{{ item.entry.title }}</a>
+                    <a :href="item.entry.link || '#'" target="_blank" class="card-title fs-5 fw-semibold link-underline-secondary">{{ item.entry.title }}</a>
                     <div v-html="getSummary(item)" class="card-text"></div>
+                    <div class="text-muted">{{ getFeedDomain(item) }}</div>
                 </div>
             </div>
         </div>
@@ -101,6 +102,12 @@ const getThumbnail = (item) => {
     const t = item.entry.media_thumbnail;
     if (t) {
         return t[0].url;
+    } else {
+        const p = /<img[^>]+src="([^">]+)/;
+        const match = p.exec(item.entry.summary);
+        if (match) {
+            return match.at(1);
+        }
     }
     return "";
 }
@@ -119,11 +126,16 @@ const getCategory = (item) => {
 
 const getSummary = (item) => {
     parseHtmlContainer.value.innerHTML = item.entry.summary || null;
-    return parseHtmlContainer.value.innerHTML;
+    return parseHtmlContainer.value.innerText;
 }
 
 const getFeedTitle = (item) => {
     return feeds.value.at(item.feedIndex).feed.title;
+}
+
+const getFeedDomain = (item) => {
+    const url = new URL(feeds.value.at(item.feedIndex).feed.link);
+    return url.hostname;
 }
 
 // LIFECYCLE HOOKS
@@ -136,6 +148,14 @@ onMounted(()=>{
 })
 
 </script>
+<style>
+img {
+    width: 100% !important;
+    max-height: 200px !important;
+    object-fit: cover;
+    object-position: 50% 20%;
+}
+</style>
 
 <style scoped>
 img.placeholder {
